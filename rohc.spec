@@ -16,26 +16,17 @@ Patch1: %{name}-%{version}-install-rohc_stats.sh.patch
 Patch2: %{name}-%{version}-gnuplot-not-mandatory-for-build.patch
 Patch3: %{name}-%{version}-fix-gcc61-warnings.patch
 
-# do we build and run tests?
-# libpcap and cmocka required by unit tests
-#  - RHEL >= 6
+# do we build and run sniffer? tests? doc?
 #  - CentOS >= 6
 #  - all others
-%if 0%{?rhel_version} || 0%{?centos_ver}
-# RHEL or CentOS
-%if 0%{?rhel_version} >= 600
-%define autoconf 1
-%define no_frame_larger_than_warning 0
-%define rohc_sniffer 1
-%define rohc_test 1
-%define pcap_name libpcap1
-%else
+%if 0%{?centos_ver}
+# CentOS
 %if 0%{?centos_ver} >= 6
 %define autoconf 1
 %define no_frame_larger_than_warning 0
 %define rohc_sniffer 1
 %define rohc_test 1
-%define pcap_name libpcap
+%define rohc_doc 1
 %else
 # CentOS 5 is unable to cope with newer autoconf and automake scripts
 %define autoconf 0
@@ -45,48 +36,28 @@ Patch3: %{name}-%{version}-fix-gcc61-warnings.patch
 %define rohc_sniffer 0
 # CentOS 5 does not provide cmocka, even in EPEL
 %define rohc_test 0
-%define pcap_name libpcap
+# CentOS 5 does not provide new enough doxygen and help2man
+%define rohc_doc 0
 %endif
-%endif
-# end RHEL or CentOS
+# end CentOS
 %else
-# !RHEL && !CentOS
+# !CentOS
 %define autoconf 1
 %define no_frame_larger_than_warning 0
 %define rohc_sniffer 1
 %define rohc_test 1
-%define pcap_name libpcap
-# end !RHEL && !CentOS
+%define rohc_doc 1
+# end !CentOS
 %endif
 
 %if %{rohc_test}
 BuildRequires: libcmocka-devel
+BuildRequires: libpcap
+BuildRequires: libpcap-devel
 %endif
-BuildRequires: %{pcap_name}-devel
 
 %global _hardened_build 1
 
-# do we generate documentation?
-#  - RHEL >= 6
-#  - CentOS >= 6
-#  - all others
-%if 0%{?rhel_version} || 0%{?centos_ver}
-# RHEL or CentOS
-%if 0%{?rhel_version} >= 600
-%define rohc_doc 1
-%else
-%if 0%{?centos_ver} >= 6
-%define rohc_doc 1
-%else
-%define rohc_doc 0
-%endif
-%endif
-# end RHEL or CentOS
-%else
-# !RHEL && !CentOS
-%define rohc_doc 1
-# end !RHEL && !CentOS
-%endif
 
 %description
 The ROHC library implements the RObust Header Compression (ROHC)
@@ -97,8 +68,8 @@ algorithms as defined by the IETF in RFC3095.
 Summary:       Miscellaneous tools that come along the ROHC library
 Group:         Development/Libraries
 Requires:      %{name} = %{epoch}:%{version}-%{release}
-Requires:      %{pcap_name}
-BuildRequires: %{pcap_name}-devel
+Requires:      libpcap
+BuildRequires: libpcap-devel
 # rohc_stats.sh uses gnuplot to draw graphs
 Requires:      gnuplot
 %if %{rohc_doc}
@@ -292,6 +263,7 @@ rm -rf %{buildroot}
 - Disable patches that require autoconf rebuild on CentOS 5
 - Disable ROHC sniffer on CentOS 5
 - Disable GCC -Wframe-larger-than=N on CentOS 5
+- Remove incomplete support for RHEL
 * Sat Jun 25 2016 Didier Barvaux <didier@barvaux.org>
 - Remove deprecated tunnel and fuzzer apps
 - Install man pages
