@@ -1,0 +1,28 @@
+commit f9835de637eb716506ad4ffb75a1aca7c9925b08
+Author: Didier Barvaux <didier@barvaux.org>
+Date:   Sun Jul 3 20:16:00 2016 +0200
+
+    stats: install rohc_stats.sh in /usr/bin/
+
+diff --git a/app/stats/Makefile.am b/app/stats/Makefile.am
+index 6515632..9dcf7f9 100644
+--- a/app/stats/Makefile.am
++++ b/app/stats/Makefile.am
+@@ -7,6 +7,9 @@
+ bin_PROGRAMS = \
+ 	rohc_stats
+ 
++bin_SCRIPTS = \
++	rohc_stats.sh
++
+ man_MANS = \
+ 	rohc_stats.1
+ 
+@@ -45,6 +48,6 @@ endif
+ 
+ # extra files for releases
+ EXTRA_DIST = \
+-	rohc_stats.sh \
++	$(bin_SCRIPTS) \
+ 	$(man_MANS)
+ 
